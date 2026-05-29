@@ -113,3 +113,52 @@ Frontend runs on: `http://localhost:3000`
 ---
 
 ## Project Structure
+quiz-scanner/
+├── backend/
+│   ├── app.py              # Flask API server
+│   ├── qr_decoder.py       # Task 1 — QR code decoding
+│   ├── ocr_extractor.py    # Task 2 — Student info OCR
+│   ├── bubble_reader.py    # Task 3 — Bubble sheet reading
+│   ├── grader.py           # Task 4 — Quiz grading logic
+│   ├── batch.py            # Task 5 — Batch processing
+│   └── uploads/            # Temporary uploaded files
+├── frontend/
+│   ├── src/
+│   │   ├── App.js          # Main React application
+│   │   └── App.css         # Dark theme styling
+│   └── public/
+├── output/                 # Generated Excel reports + reports.json
+└── README.md
+
+---
+
+---
+
+## How It Works
+
+1. **Upload** — User uploads a quiz sheet (image or PDF)
+2. **QR Decode** — System finds and decodes the QR code to extract the answer key (Set, Part-I answers, Part-II answers)
+3. **OCR** — Tesseract reads the student name and registration number from the top of the sheet
+4. **Bubble Detection** — OpenCV detects all answer bubbles using:
+   - Table border removal via morphological operations
+   - HoughCircles for lightly filled bubbles
+   - Contour detection for fully filled/dark bubbles
+   - Grid-based clustering to map bubbles to correct question rows and option columns
+5. **Grading** — Student answers compared against key, score calculated
+6. **Report** — Results saved to JSON history and available as Excel download
+
+---
+
+## Screenshots
+
+> Scanner page — upload and grade a single quiz sheet
+
+![Scanner](demo/screenshot_scanner.png)
+
+> Results page — grade breakdown with per-question status
+
+![Results](demo/screenshot_results.png)
+
+> Reports page — full history with Excel download
+
+![Reports](demo/screenshot_reports.png)
