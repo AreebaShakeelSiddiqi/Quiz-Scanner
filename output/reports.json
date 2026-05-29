@@ -1,39 +1,39 @@
 [
   {
-    "timestamp": "2026-05-29T17:42:47.023053",
-    "filename": "CamScanner 14-05-2026 17.28 (2).pdf",
+    "timestamp": "2026-05-29T18:15:27.471392",
+    "filename": "noor quiz.jpeg",
     "student": {
       "name": "Unknown",
-      "reg_no": "\u2018EPIY DCE Und lan res"
+      "reg_no": "s BSE JFA2Y- O4F ae iad"
     },
-    "set": "A",
-    "subject": "AI Quiz SP2026 Set-A",
-    "grade": "F",
-    "score": 4,
+    "set": "B",
+    "subject": "AI Quiz SP2026 Set-B",
+    "grade": "C",
+    "score": 10,
     "total": 16,
-    "percentage": 25.0,
-    "correct": 4,
-    "incorrect": 11,
-    "unattempted": 1,
+    "percentage": 62.5,
+    "correct": 10,
+    "incorrect": 3,
+    "unattempted": 3,
     "part1": {
       "Q01": "A",
       "Q02": "B",
-      "Q03": "C",
-      "Q04": "D",
+      "Q03": "A",
+      "Q04": "B",
       "Q05": "B",
       "Q06": "C",
-      "Q07": "C",
-      "Q08": "C"
+      "Q07": "B",
+      "Q08": "B"
     },
     "part2": {
-      "Q01": "A",
+      "Q01": null,
       "Q02": "A",
       "Q03": "A",
       "Q04": null,
-      "Q05": "A",
-      "Q06": "A",
-      "Q07": "A",
-      "Q08": "A"
+      "Q05": null,
+      "Q06": "D",
+      "Q07": "D",
+      "Q08": "B"
     },
     "errors": {}
   }

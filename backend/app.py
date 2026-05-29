@@ -12,7 +12,7 @@ from grader import grade_quiz
 from batch import process_batch
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["*"])
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 OUTPUT_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'output')
@@ -107,6 +107,64 @@ def download_reports_excel():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/debug', methods=['POST'])
+def debug_image():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image"}), 400
+    file = request.files['image']
+    if not file:
+        return jsonify({"error": "No file"}), 400
+    try:
+        filepath = save_upload(file)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    import cv2, numpy as np
+    img = cv2.imread(filepath)
+    if img is None:
+        return jsonify({"error": "Cannot read image"})
+
+    h, w = img.shape[:2]
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    top    = int(h * 0.18)
+    bottom = int(h * 0.42)
+    region = gray[top:bottom, :]
+    rh, rw = region.shape
+
+    blurred = cv2.GaussianBlur(region, (5,5), 0)
+    thresh  = cv2.threshold(blurred, 0, 255,
+                cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+
+    circles = cv2.HoughCircles(
+        blurred, cv2.HOUGH_GRADIENT,
+        dp=1, minDist=18,
+        param1=50, param2=22,
+        minRadius=12, maxRadius=22
+    )
+
+    detected = []
+    if circles is not None:
+        for (x,y,r) in np.uint16(np.around(circles[0,:])):
+            mask = np.zeros(region.shape, np.uint8)
+            cv2.circle(mask,(int(x),int(y)),max(int(r)-1,3),255,-1)
+            area = cv2.countNonZero(mask)
+            ratio = cv2.countNonZero(
+                cv2.bitwise_and(thresh,thresh,mask=mask))/(area+1)
+            detected.append({
+                "x": int(x), "y": int(y), "r": int(r),
+                "fill": round(float(ratio), 3),
+                "side": "part1" if int(x) < rw*0.485 else "part2"
+            })
+
+    return jsonify({
+        "image_size": f"{w}x{h}",
+        "crop_region": f"{top} to {bottom} ({rh}px tall)",
+        "region_width": rw,
+        "split_x": round(rw * 0.485),
+        "circles_found": len(detected),
+        "circles": sorted(detected, key=lambda c: (c["y"], c["x"]))
+    })
+
 @app.route('/api/process', methods=['POST'])
 def process_single():
     if 'image' not in request.files:
@@ -151,7 +209,8 @@ def process_single():
     save_report({
         "timestamp":   datetime.now().isoformat(),
         "filename":    file.filename,
-        "student":     {"name": si.get("name","Unknown"), "reg_no": si.get("reg_no","Unknown")},
+        "student":     {"name": si.get("name","Unknown"),
+                        "reg_no": si.get("reg_no","Unknown")},
         "set":         ak.get("set",""),
         "subject":     ak.get("subject",""),
         "grade":       gr.get("grade",""),
@@ -189,7 +248,8 @@ def process_batch_route():
             save_report({
                 "timestamp":   datetime.now().isoformat(),
                 "filename":    r.get("Quiz",""),
-                "student":     {"name": r.get("Name",""), "reg_no": r.get("Reg No","")},
+                "student":     {"name": r.get("Name",""),
+                                "reg_no": r.get("Reg No","")},
                 "set":         r.get("Set",""),
                 "subject":     "",
                 "grade":       r.get("Grade",""),
@@ -209,7 +269,8 @@ def process_batch_route():
             "count":      len(results)
         })
     except Exception as e:
-        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+        return jsonify({"error": str(e),
+                        "trace": traceback.format_exc()}), 500
 
 @app.route('/api/download/<filename>', methods=['GET'])
 def download_file(filename):
@@ -219,5 +280,4 @@ def download_file(filename):
     return jsonify({"error": "File not found"}), 404
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5001))
-    app.run(debug=False, port=port, host='0.0.0.0')
+    app.run(debug=True, port=5001, host='0.0.0.0')
