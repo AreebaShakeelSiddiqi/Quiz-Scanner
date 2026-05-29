@@ -95,7 +95,6 @@ def download_reports_excel():
                 "Incorrect":   r.get("incorrect",0),
                 "Unattempted": r.get("unattempted",0),
             }
-            # Add individual question answers
             for q in [f"Q{i:02d}" for i in range(1,9)]:
                 row[f"P1_{q}"] = r.get("part1",{}).get(q,"")
                 row[f"P2_{q}"] = r.get("part2",{}).get(q,"")
@@ -220,4 +219,5 @@ def download_file(filename):
     return jsonify({"error": "File not found"}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001, host='0.0.0.0')
+    port = int(os.environ.get('PORT', 5001))
+    app.run(debug=False, port=port, host='0.0.0.0')
