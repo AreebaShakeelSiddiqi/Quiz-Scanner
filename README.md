@@ -1,22 +1,36 @@
+````md
 # QuizScan — Automated Quiz Scanner & Grading System
 
-An AI-powered full-stack web application that automatically scans, reads, and grades bubble-sheet quiz papers using computer vision and OCR.
+An AI-powered full-stack web application that automatically scans, reads, and grades bubble-sheet quiz papers using Computer Vision and OCR.
 
 ---
 
-## Tasks Completed
+## 🚀 Live Demo
+
+🔗 [View Web App](YOUR_DEPLOYED_LINK_HERE)
+
+> No installation required — simply open the web app and start scanning quiz sheets instantly.
+
+---
+
+## ✅ Tasks Completed
 
 - ✅ **Task 1 — QR Code Decoding:** Decodes answer key embedded in QR code on each quiz sheet using pyzbar + OpenCV. Supports multiple scales and rotations for robustness.
+
 - ✅ **Task 2 — Student Info Extraction:** Extracts student name and registration number from the sheet header using Tesseract OCR.
+
 - ✅ **Task 3 — Bubble Sheet Reading:** Detects and reads filled bubbles for Part-I and Part-II (8 questions each) using HoughCircles + contour detection with table border removal.
+
 - ✅ **Task 4 — Quiz Grading:** Compares student answers against the decoded answer key, computes score, percentage, and letter grade with per-question breakdown.
+
 - ✅ **Task 5 — Batch Processing & Report Export:** Processes multiple quiz sheets at once and exports results to Excel (.xlsx) with class statistics summary.
 
 ---
 
-## Libraries & Frameworks Used
+# 🛠️ Libraries & Frameworks Used
 
-### Backend
+## Backend
+
 | Library | Purpose |
 |---|---|
 | Flask | REST API server |
@@ -30,7 +44,10 @@ An AI-powered full-stack web application that automatically scans, reads, and gr
 | numpy | Numerical operations for image arrays |
 | Pillow | Image saving and format conversion |
 
-### Frontend
+---
+
+## Frontend
+
 | Library | Purpose |
 |---|---|
 | React | UI framework |
@@ -39,58 +56,30 @@ An AI-powered full-stack web application that automatically scans, reads, and gr
 
 ---
 
-## How to Install and Run
+# 📖 How to Use
 
-### Prerequisites
-- macOS (M1/M2/Intel)
-- Python 3.11+
-- Node.js 18+
-- Homebrew
+## Single Quiz Mode
 
-### System Dependencies
-```bash
-brew install python@3.11 node tesseract zbar poppler
-```
-
-### Backend Setup
-```bash
-cd backend
-python3.11 -m venv venv
-source venv/bin/activate
-pip install flask flask-cors opencv-python-headless pillow pyzbar pytesseract pandas openpyxl numpy pdf2image
-python app.py
-```
-
-Backend runs on: `http://localhost:5001`
-
-### Frontend Setup
-```bash
-cd frontend
-npm install
-npm start
-```
-
-Frontend runs on: `http://localhost:3000`
-
----
-
-## How to Use
-
-### Single Quiz Mode
-1. Open `http://localhost:3000` in your browser
+1. Open the deployed web app in your browser
 2. Select **Single Quiz** tab
 3. Upload a quiz sheet image (JPG, PNG) or scanned PDF
 4. Click **Scan & Grade**
 5. View results — student info, answer key from QR, per-question breakdown, and final grade
 
-### Batch Processing Mode
+---
+
+## Batch Processing Mode
+
 1. Select **Batch Processing** tab
 2. Enter a quiz name
 3. Upload multiple quiz sheet images
 4. Click **Process Batch**
 5. View class results table and download Excel report
 
-### Reports
+---
+
+## Reports
+
 - Every scan automatically saves to the **Reports** tab
 - View history with timestamps, scores, and grades
 - Download full Excel report of all scans
@@ -98,7 +87,7 @@ Frontend runs on: `http://localhost:3000`
 
 ---
 
-## API Endpoints
+# 📡 API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -112,53 +101,87 @@ Frontend runs on: `http://localhost:3000`
 
 ---
 
-## Project Structure
+# 📁 Project Structure
+
+```bash
 quiz-scanner/
 ├── backend/
-│   ├── app.py              # Flask API server
-│   ├── qr_decoder.py       # Task 1 — QR code decoding
-│   ├── ocr_extractor.py    # Task 2 — Student info OCR
-│   ├── bubble_reader.py    # Task 3 — Bubble sheet reading
-│   ├── grader.py           # Task 4 — Quiz grading logic
-│   ├── batch.py            # Task 5 — Batch processing
-│   └── uploads/            # Temporary uploaded files
+│   ├── app.py
+│   ├── qr_decoder.py
+│   ├── ocr_extractor.py
+│   ├── bubble_reader.py
+│   ├── grader.py
+│   ├── batch.py
+│   └── uploads/
+│
 ├── frontend/
 │   ├── src/
-│   │   ├── App.js          # Main React application
-│   │   └── App.css         # Dark theme styling
+│   │   ├── App.js
+│   │   └── App.css
 │   └── public/
-├── output/                 # Generated Excel reports + reports.json
+│
+├── output/
 └── README.md
+````
 
 ---
 
----
-
-## How It Works
+# ⚙️ How It Works
 
 1. **Upload** — User uploads a quiz sheet (image or PDF)
+
 2. **QR Decode** — System finds and decodes the QR code to extract the answer key (Set, Part-I answers, Part-II answers)
+
 3. **OCR** — Tesseract reads the student name and registration number from the top of the sheet
+
 4. **Bubble Detection** — OpenCV detects all answer bubbles using:
-   - Table border removal via morphological operations
-   - HoughCircles for lightly filled bubbles
-   - Contour detection for fully filled/dark bubbles
-   - Grid-based clustering to map bubbles to correct question rows and option columns
-5. **Grading** — Student answers compared against key, score calculated
+
+   * Table border removal via morphological operations
+   * HoughCircles for lightly filled bubbles
+   * Contour detection for fully filled/dark bubbles
+   * Grid-based clustering to map bubbles to correct question rows and option columns
+
+5. **Grading** — Student answers compared against key and score calculated
+
 6. **Report** — Results saved to JSON history and available as Excel download
 
 ---
 
-## Screenshots
+# 📸 Screenshots
 
-> Scanner page — upload and grade a single quiz sheet
+## Scanner Page
 
 ![Scanner](demo/screenshot_scanner.png)
 
-> Results page — grade breakdown with per-question status
+---
+
+## Results Page
 
 ![Results](demo/screenshot_results.png)
 
-> Reports page — full history with Excel download
+---
+
+## Reports Page
 
 ![Reports](demo/screenshot_reports.png)
+
+---
+
+# 🔮 Future Improvements
+
+* Handwritten answer recognition
+* Teacher/Admin authentication system
+* Cloud database integration
+* AI-based answer confidence scoring
+* Mobile responsive optimization
+
+---
+
+# 👩‍💻 Author
+
+**Areeba Shakeel Siddiqi**
+
+🔗 Portfolio: https://areebashakeelsiddiqi.github.io/My-portfolio/
+
+```
+```
