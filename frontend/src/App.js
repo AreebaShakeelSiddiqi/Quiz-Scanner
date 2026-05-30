@@ -4,6 +4,75 @@ import './App.css';
 
 const API = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
+function AnswerKeysPage() {
+  const [keys, setKeys] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  const fetchKeys = () => {
+    setLoading(true);
+    axios.get(`${API}/api/keys`)
+      .then(r => { setKeys(r.data); setLoading(false); })
+      .catch(() => setLoading(false));
+  };
+
+  React.useEffect(() => { fetchKeys(); }, []);
+
+  const clearKeys = async () => {
+    if (!window.confirm('Clear all saved keys?')) return;
+    await axios.delete(`${API}/api/keys/clear`);
+    setKeys([]);
+  };
+
+  return (
+    <div>
+      {loading && <p style={{color:'#555'}}>Loading...</p>}
+      {!loading && keys.length === 0 && (
+        <div className="card" style={{marginTop:'20px'}}>
+          <h3>No keys yet</h3>
+          <p style={{color:'#555',fontSize:'14px',marginTop:'8px'}}>Answer keys are auto-saved when you scan a quiz. Scan a quiz to see keys here.</p>
+        </div>
+      )}
+      {!loading && keys.length > 0 && (
+        <>
+          <div style={{display:'flex',gap:'12px',margin:'20px 0'}}>
+            <button onClick={fetchKeys} style={{padding:'8px 18px',background:'#1e1e22',border:'1px solid #2a2a2e',borderRadius:'8px',color:'#e8e6e0',cursor:'pointer',fontSize:'13px'}}>
+              Refresh
+            </button>
+            <button onClick={clearKeys} style={{padding:'8px 18px',background:'#2a1515',border:'1px solid #5a2020',borderRadius:'8px',color:'#e07070',cursor:'pointer',fontSize:'13px'}}>
+              Clear All
+            </button>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',gap:'14px'}}>
+            {keys.map((k, i) => (
+              <div key={i} className="card">
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'14px'}}>
+                  <div>
+                    <span style={{fontSize:'12px',color:'#c9a96e',fontWeight:'600'}}>SET {k.set}</span>
+                    <span style={{fontSize:'12px',color:'#444',marginLeft:'10px'}}>{k.subject}</span>
+                  </div>
+                  <span style={{fontSize:'11px',color:'#333'}}>{k.timestamp ? new Date(k.timestamp).toLocaleDateString() : ''}</span>
+                </div>
+                <div style={{marginBottom:'8px'}}>
+                  <div style={{fontSize:'11px',color:'#444',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:'6px'}}>Part I</div>
+                  <div className="answer-chips">
+                    {Object.entries(k.part1||{}).map(([q,a]) => <span key={q} className="answer-chip">{q}:{a}</span>)}
+                  </div>
+                </div>
+                <div>
+                  <div style={{fontSize:'11px',color:'#444',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:'6px'}}>Part II</div>
+                  <div className="answer-chips">
+                    {Object.entries(k.part2||{}).map(([q,a]) => <span key={q} className="answer-chip">{q}:{a}</span>)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function ReportsPage() {
   const [reports, setReports] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
@@ -182,11 +251,8 @@ function App() {
         {page === 'keys' && (
           <div>
             <div className="page-title">Answer Keys</div>
-            <div className="page-sub">Manage QR-encoded answer keys</div>
-            <div className="card" style={{marginTop:'20px'}}>
-              <h3>Keys are embedded in QR codes</h3>
-              <p style={{color:'#555',fontSize:'14px',marginTop:'8px'}}>Each quiz sheet carries its own answer key via QR code. No manual entry needed.</p>
-            </div>
+            <div className="page-sub">Auto-saved from scanned quizzes</div>
+            <AnswerKeysPage />
           </div>
         )}
 

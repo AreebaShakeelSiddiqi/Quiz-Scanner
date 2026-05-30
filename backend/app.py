@@ -20,6 +20,7 @@ CORS(app, origins=["*"])
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 OUTPUT_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'output')
 REPORTS_FILE  = os.path.join(OUTPUT_FOLDER, 'reports.json')
+KEYS_FILE     = os.path.join(OUTPUT_FOLDER, 'answer_keys.json')
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -59,6 +60,20 @@ def save_report(data):
             json.dump(reports, f, indent=2)
     except Exception as e:
         print(f"Report save error: {e}")
+
+def save_answer_key(ak_data):
+    try:
+        keys = []
+        if os.path.exists(KEYS_FILE):
+            with open(KEYS_FILE, 'r') as f:
+                keys = json.load(f)
+        existing = next((k for k in keys if k.get('set') == ak_data.get('set') and k.get('subject') == ak_data.get('subject')), None)
+        if not existing:
+            keys.append(ak_data)
+            with open(KEYS_FILE, 'w') as f:
+                json.dump(keys, f, indent=2)
+    except Exception as e:
+        print(f"Key save error: {e}")
 
 @app.route('/health', methods=['GET'])
 def health():
@@ -114,6 +129,25 @@ def download_reports_excel():
         df.to_excel(filepath, index=False)
         return send_file(filepath, as_attachment=True,
                         download_name='QuizScan_Reports.xlsx')
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/keys', methods=['GET'])
+def get_keys():
+    try:
+        if os.path.exists(KEYS_FILE):
+            with open(KEYS_FILE, 'r') as f:
+                return jsonify(json.load(f))
+        return jsonify([])
+    except:
+        return jsonify([])
+
+@app.route('/api/keys/clear', methods=['DELETE'])
+def clear_keys():
+    try:
+        if os.path.exists(KEYS_FILE):
+            os.remove(KEYS_FILE)
+        return jsonify({"status": "cleared"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -191,6 +225,9 @@ def process_single():
 
     try:
         result["answer_key"] = decode_answer_key(filepath)
+        if result["answer_key"]:
+            ak_data = {**result["answer_key"], "timestamp": datetime.now().isoformat()}
+            save_answer_key(ak_data)
     except Exception as e:
         result["answer_key"] = None
         result["errors"]["qr"] = str(e)
