@@ -22,7 +22,6 @@ def read_bubble_sheet(image_path):
 
     detected = []
 
-    # Method 1: HoughCircles — catches lightly filled bubbles
     hough = cv2.HoughCircles(
         blurred, cv2.HOUGH_GRADIENT,
         dp=1, minDist=18,
@@ -37,7 +36,6 @@ def read_bubble_sheet(image_path):
                 "fill_ratio": ratio
             })
 
-    # Method 2: Contour detection — catches solid black filled bubbles
     contours, _ = cv2.findContours(clean_thresh, cv2.RETR_LIST,
                                     cv2.CHAIN_APPROX_SIMPLE)
     for c in contours:
@@ -60,13 +58,13 @@ def read_bubble_sheet(image_path):
     if len(detected) < 8:
         return _empty_result()
 
-    split_x = rw * 0.485
+    split_x = rw * 0.50
     p1 = [c for c in detected if c["x"] < split_x]
     p2 = [c for c in detected if c["x"] >= split_x]
 
     return {
         "part1": _parse_part(p1, label_x_max=320),
-        "part2": _parse_part(p2, label_x_max=870)
+        "part2": _parse_part(p2, label_x_max=530)
     }
 
 
@@ -140,7 +138,7 @@ def _parse_part(circles, label_x_max, num_q=8, num_opts=4):
         ratios = [cell["fill_ratio"] if cell else 0.0 for cell in row]
         mx     = max(ratios)
 
-        if mx < 0.40:
+        if mx < 0.30:
             result[q_key] = None
         else:
             result[q_key] = options[ratios.index(mx)]

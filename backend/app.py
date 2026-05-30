@@ -5,11 +5,14 @@ import pandas as pd
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from pdf2image import convert_from_path
+from dotenv import load_dotenv
 from qr_decoder import decode_answer_key
 from ocr_extractor import extract_student_info
 from bubble_reader import read_bubble_sheet
 from grader import grade_quiz
 from batch import process_batch
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, origins=["*"])
@@ -28,6 +31,13 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def save_upload(file):
+    # Clear old uploads first
+    for f in os.listdir(UPLOAD_FOLDER):
+        try:
+            os.remove(os.path.join(UPLOAD_FOLDER, f))
+        except:
+            pass
+
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
