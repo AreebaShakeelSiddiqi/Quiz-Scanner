@@ -64,11 +64,15 @@ def _extract_name(text):
 
 
 def _extract_reg(text):
-    m = re.search(r'([A-Z]{2,}-[A-Z]{2,}\d{2,}-\d{2,})', text, re.IGNORECASE)
+    # 1. Broad global search for any roll number containing alphabets, numbers, and dashes
+    # Captures patterns like BSE-JFA2Y-04F, BSE-4A-123, etc.
+    m = re.search(r'([A-Z0-9]{2,4}-[A-Z0-9]{2,5}-\d{2,4})', text, re.IGNORECASE)
     if m:
         return m.group(1).upper()
+        
+    # 2. Fallback: Search explicitly line by line following the label "Reg"
     for line in text.split('\n'):
         m = re.search(r'reg(?:istration)?\s*[#no.:]*\s*[:\-]?\s*([A-Z0-9][\w\-]+)', line, re.IGNORECASE)
         if m:
-            return m.group(1).strip()
+            return m.group(1).strip().upper()
     return ""
